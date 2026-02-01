@@ -11,9 +11,4 @@ title="Dashboard | Inventario"
 ]">
 
 
-
-
-
-
-
 </x-admin-layout>

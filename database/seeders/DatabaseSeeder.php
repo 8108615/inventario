@@ -15,11 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        /* User::factory(10)->create();
+        //User::factory(10)->create();
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);*/
+            'name' => 'Erick Fernando Morales Gil',
+            'email' => 'erick@gmail.com',
+            'password'=> bcrypt('12345678'),
+        ]);
 
         $this->call([
             CategorySeeder::class,

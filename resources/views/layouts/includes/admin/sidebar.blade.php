@@ -5,6 +5,13 @@
             'icon' => 'fa-solid fa-gauge',
             'href' => route('admin.dashboard'),
             'active' => request()->routeIs('admin.dashboard'),
+        ],
+
+        [
+            'name' => 'Categorias',
+            'icon' => 'fa-solid fa-list',
+            'href' => route('admin.categories.index'),
+            'active' => request()->routeIs('admin.categories.*'),
         ]
 
     ];

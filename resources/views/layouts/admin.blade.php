@@ -20,14 +20,20 @@
     {{--   Fontawesome --}}
     <script src="https://kit.fontawesome.com/91c4a6d0d4.js" crossorigin="anonymous"></script>
 
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
     {{-- wireui --}}
     <wireui:scripts />
 
-    <!-- Scripts -->
+    {{-- Scripts --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Styles -->
     @livewireStyles
+
+    @stack('css')
 </head>
 
 <body class="font-sans antialiased bg-gray-50">
@@ -58,6 +64,15 @@
     @livewireScripts
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
+
+    @if(session('swal'))
+        <script>
+            Swal.fire(@json(session('swal')));
+        </script>
+    @endif
+
+    @stack('js')
+
 </body>
 
 </html>
