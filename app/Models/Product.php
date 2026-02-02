@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $filleble = [
+    use HasFactory;
+    protected $fillable = [
         'name',
         'description',
         'sku',
@@ -25,6 +27,18 @@ class Product extends Model
     public function inventories()
     {
         return $this->hasMany(Inventory::class);
+    }
+
+    //Relacion muchos a muchos polimórfica
+
+    public function purchaseOrder()
+    {
+        return $this->morphedByMany(PurchaseOrder::class, 'productable');
+    }
+
+    public function quotes()
+    {
+        return $this->morphedByMany(Quote::class, 'productable');
     }
 
     //Relacion polimórfica
