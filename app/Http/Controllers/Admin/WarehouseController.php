@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 
-use function Pest\Laravel\session;
+
 
 class WarehouseController extends Controller
 {
