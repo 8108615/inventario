@@ -67,6 +67,7 @@ title="Productos | Inventario"
         <script>
             Dropzone.options.myDropzone = {
                 // Configuration options go here
+                addRemoveLinks: true,
                 init: function() {
                     let myDropzone = this;
 
@@ -80,6 +81,23 @@ title="Productos | Inventario"
                         }
 
                         myDropzone.displayExistingFile(mockFile, `{{ Storage::url('${image.path}') }}`);
+                        myDropzone.emit("complete", mockFile);
+                        myDropzone.files.push(mockFile);
+                    });
+
+                    this.on("success", function(file, response) {
+                        file.id = response.id;
+                    });
+
+                    this.on("removedfile", function(file) {
+
+                        axios.delete(`/admin/images/${file.id}`)
+                            .then(response => {
+                                console.log(response.data);
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
                     });
                 }
             };

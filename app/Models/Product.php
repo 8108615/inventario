@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -16,6 +18,14 @@ class Product extends Model
         'price',
         'category_id',
     ];
+
+    //accesores
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->images()->count() ? Storage::url($this->images->first()->path) : 'https://dicesabajio.com.mx/wp-content/uploads/2021/06/no-image-300x300.jpeg',
+        );
+    }
 
     // Relación uno a muchos inversa
     public function category()

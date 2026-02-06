@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'identity_id',
         'document_number',
@@ -26,7 +28,7 @@ class Customer extends Model
     {
         return $this->hasMany(Quote::class);
     }
-    
+
     public function sales()
     {
         return $this->hasMany(Sale::class);

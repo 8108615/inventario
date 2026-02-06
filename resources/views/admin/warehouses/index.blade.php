@@ -1,38 +1,22 @@
 <x-admin-layout
-title="Productos | Inventario"
+title="Almacenes | Inventario"
 :breadcrumbs="[
     [
         'name' => 'Dashboard',
         'href' => route('admin.dashboard'),
     ],
     [
-        'name' => 'Productos',
+        'name' => 'Almacenes',
     ]
 ]">
 
-    @push('css')
-        <style>
-            table th span, table td {
-                font-size: 0.75rem !important;
-            }
-
-            .image-product {
-                width: 5rem !important;
-                height: 3rem !important;
-                object-fit: cover !important;
-                object-position: center !important;
-
-            }
-        </style>
-    @endpush
-
     <x-slot name="action">
-        <x-wire-button href="{{ route('admin.products.create') }}" blue>
+        <x-wire-button href="{{ route('admin.warehouses.create') }}" blue>
             Nuevo
         </x-wire-button>
     </x-slot>
 
-    @livewire('admin.datatables.product-table')
+    @livewire('admin.datatables.warehouse-table')
 
     @push('js')
         <script>
