@@ -81,6 +81,23 @@ class WarehouseController extends Controller
      */
     public function destroy(Warehouse $warehouse)
     {
-        //
+        if($warehouse->inventories()->exists()) {
+            session()->flash('swal', [
+                'icon' => 'error',
+                'title' => '¡Error!',
+                'text' => 'No se puede Eliminar el Almacén porque tiene Inventarios Asociados.',
+            ]);
+
+            return redirect()->route('admin.warehouses.edit');
+        }
+        $warehouse->delete();
+
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => '¡Bien Hecho!',
+            'text' => 'El Almacén ha sido Eliminado Correctamente.',
+        ]);
+
+        return redirect()->route('admin.warehouses.index');
     }
 }
