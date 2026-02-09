@@ -45,34 +45,65 @@
                     <x-wire-input
                         label="Serie"
                         wire:model="serie"
-                        placeholder="Serie del comprobante"
-                        disabled />
+                        placeholder="Serie del comprobante" />
 
                     <x-wire-input
                         label="Correlativo"
                         wire:model="correlative"
-                        placeholder="Correlativo del comprobante"
-                        disabled />
+                        placeholder="Correlativo del comprobante" />
                 </div>
 
                 <x-wire-input
                     label="Fecha"
                     wire:model="date"
                     type="date" />
+
+                <x-wire-select
+                    label="Orden de Compra"
+                    wire:model.live="purchase_order_id"
+                    placeholder="Seleccione un Orden de Compra"
+                    :async-data="[
+                        'api' => route('api.purchase-orders.index'),
+                        'method' => 'POST',
+                    ]"
+                    option-label="name"
+                    option-value="id"
+                    option-description="description"
+                />
+
+                <div class="col-span-2">
+                    <x-wire-select
+                        label="Proveedor"
+                        wire:model="supplier_id"
+                        placeholder="Seleccione un Proveedor"
+                        :async-data="[
+                            'api' => route('api.suppliers.index'),
+                            'method' => 'POST',
+                        ]"
+                        option-label="name"
+                        option-value="id"
+
+                    />
+                </div>
+
+                <div class="col-span-2">
+                    <x-wire-select
+                        label="Almacenes"
+                        wire:model="warehouse_id"
+                        placeholder="Seleccione un Almacén"
+                        :async-data="[
+                            'api' => route('api.warehouses.index'),
+                            'method' => 'POST',
+                        ]"
+                        option-value="id"
+                        option-label="name"
+                        option-description="description"
+
+                    />
+                </div>
             </div>
 
-            <x-wire-select
-                label="Proveedor"
-                wire:model="supplier_id"
-                placeholder="Seleccione un Proveedor"
-                :async-data="[
-                    'api' => route('api.suppliers.index'),
-                    'method' => 'POST',
-                ]"
-                option-label="name"
-                option-value="id"
 
-            />
 
             <div class="lg:flex lg:space-x-4">
                 <x-wire-select
