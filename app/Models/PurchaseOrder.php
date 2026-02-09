@@ -16,6 +16,10 @@ class PurchaseOrder extends Model
         'observation',
     ];
 
+    protected $casts = [
+        'date' => 'date',
+    ];
+
     //Relación uno a muchos inversa
     public function supplier()
     {

@@ -44,6 +44,7 @@
             'active' => request()->routeIs([
                 'admin.suppliers.*',
                 'admin.purchase-orders.*',
+                'admin.purchases.*',
             ]),
             'submenu' => [
                 [
@@ -58,8 +59,8 @@
                 ],
                 [
                     'name' => 'Compras',
-                    'href' => '',
-                    'active' => false,
+                    'href' => route('admin.purchases.index'),
+                    'active' => request()->routeIs('admin.purchases.*'),
                 ],
             ],
         ],

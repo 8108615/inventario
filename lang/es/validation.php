@@ -236,6 +236,7 @@ return [
         'product_id'               => 'ID del producto',
         'product_uid'              => 'UID del producto',
         'product_uuid'             => 'UUID del producto',
+        'products'                => 'productos',
         'promo_code'               => 'código promocional',
         'province'                 => 'provincia',
         'quantity'                 => 'cantidad',
