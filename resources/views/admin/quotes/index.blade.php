@@ -1,21 +1,21 @@
 <x-admin-layout
-title="Ordenes de Compra | Inventario"
+title="Cotizaciones | Inventario"
 :breadcrumbs="[
     [
         'name' => 'Dashboard',
         'href' => route('admin.dashboard'),
     ],
     [
-        'name' => 'Ordenes de Compra',
+        'name' => 'Cotizaciones',
     ]
 ]">
 
     <x-slot name="action">
-        <x-wire-button href="{{ route('admin.purchase-orders.create') }}" blue>
+        <x-wire-button href="{{ route('admin.quotes.create') }}" blue>
             Nuevo
         </x-wire-button>
     </x-slot>
 
-    @livewire('admin.datatables.purchase-order-table')
+    @livewire('admin.datatables.quote-table')
 
 </x-admin-layout>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
@@ -36,6 +37,20 @@ Route::post('/suppliers', function(Request $request){
         )->get();
 
 })->name('api.suppliers.index');
+
+Route::post('/customers', function(Request $request){
+    return Customer::select('id', 'name')
+        ->when($request->search, function($query, $search){
+            $query->where('name','like', "%{$search}%")
+                ->orWhere('document_number', 'like', "%{$search}%");
+        })
+        ->when(
+            $request->exists('selected'),
+            fn ($query) => $query->whereIn('id', $request->input('selected', [])),
+            fn ($query) => $query->limit(10)
+        )->get();
+
+})->name('api.customers.index');
 
 Route::post('/products', function(Request $request){
     return Product::select('id', 'name')
