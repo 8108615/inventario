@@ -70,6 +70,7 @@
             'active' => request()->routeIs([
                 'admin.customers.*',
                 'admin.quotes.*',
+                'admin.sales.*'
             ]),
             'submenu' => [
                 [
@@ -84,25 +85,28 @@
                 ],
                 [
                     'name' => 'Ventas',
-                    'href' => '',
-                    'active' => false,
+                    'href' => route('admin.sales.index'),
+                    'active' => request()->routeIs('admin.sales.*'),
                 ],
             ],
         ],
         [
             'name' => 'Movimientos',
             'icon' => 'fa-solid fa-arrows-rotate',
-            'active' => false,
+            'active' => request()->routeIs([
+                'admin.movements.*',
+                'admin.transfers.*',
+            ]),
             'submenu' => [
                 [
                     'name' => 'Entradas y Salidas',
-                    'href' => '',
-                    'active' => false,
+                    'href' => route('admin.movements.index'),
+                    'active' => request()->routeIs('admin.movements.*'),
                 ],
                 [
                     'name' => 'Transferencias',
-                    'href' => '',
-                    'active' => false,
+                    'href' => route('admin.transfers.index'),
+                    'active' => request()->routeIs('admin.transfers.*'),
                 ],
             ],
 

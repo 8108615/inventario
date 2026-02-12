@@ -6,9 +6,10 @@ use App\Models\Purchase;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\PurchaseOrder;
+use App\Models\Sale;
 use Illuminate\Database\Eloquent\Builder;
 
-class PurchaseTable extends DataTableComponent
+class SaleTable extends DataTableComponent
 {
     protected $model = PurchaseOrder::class;
 
@@ -31,17 +32,17 @@ class PurchaseTable extends DataTableComponent
                     ->sortable(),
             Column::make("Correlativo", "correlative")
                     ->sortable(),
-            Column::make("Document", "supplier.document_number")
+            Column::make("Document", "customer.document_number")
                     ->sortable(),
-            Column::make("Razon Social", "supplier.name")
+            Column::make("Razon Social", "customer.name")
                     ->sortable(),
             Column::make("Total", "total")
                     ->sortable()
                     ->format(fn($value) => 'Bs/ ' . number_format($value, 2,'.',',')),
             Column::make("Actiones")
                     ->label(function($row) {
-                        return view('admin.purchases.actions', [
-                            'purchase' => $row
+                        return view('admin.sales.actions', [
+                            'sale' => $row
                         ]);
                     })
 
@@ -50,7 +51,7 @@ class PurchaseTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Purchase::query()
-            ->with(['supplier']);
+        return Sale::query()
+            ->with(['customer']);
     }
 }

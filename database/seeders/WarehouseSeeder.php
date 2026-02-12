@@ -15,7 +15,12 @@ class WarehouseSeeder extends Seeder
     {
         Warehouse::create([
             'name' => 'Almacén Principal',
-            'location' => 'Av Cumavi',
+            'location' => 'Av Primaria 123',
+        ]);
+
+        Warehouse::create([
+            'name' => 'Almacén Secundario',
+            'location' => 'calle Secundaria 123',
         ]);
     }
 }

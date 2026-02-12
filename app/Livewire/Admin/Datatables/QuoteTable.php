@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class QuoteTable extends DataTableComponent
 {
-    protected $model = PurchaseOrder::class;
+    protected $model = Quote::class;
 
     public function configure(): void
     {
@@ -39,8 +39,8 @@ class QuoteTable extends DataTableComponent
                     ->format(fn($value) => 'Bs/ ' . number_format($value, 2,'.',',')),
             Column::make("Actiones")
                     ->label(function($row) {
-                        return view('admin.purchase_orders.actions', [
-                            'purchaseOrder' => $row
+                        return view('admin.quotes.actions', [
+                            'quote' => $row
                         ]);
                     })
 

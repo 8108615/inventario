@@ -2,15 +2,15 @@
 
 namespace App\Livewire\Admin\Datatables;
 
-use App\Models\Purchase;
+use App\Models\Movement;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use Illuminate\Database\Eloquent\Builder;
 
-class PurchaseTable extends DataTableComponent
+class MovementTable extends DataTableComponent
 {
-    protected $model = PurchaseOrder::class;
+    protected $model = Quote::class;
 
     public function configure(): void
     {
@@ -27,21 +27,32 @@ class PurchaseTable extends DataTableComponent
             Column::make("Date", "date")
                     ->sortable()
                     ->format(fn($value) => $value->format('Y-m-d')),
+
+            Column::make("Tipo", "type")
+                    ->sortable()
+                    ->format(
+                        fn($value) => match($value) {
+                            1 => 'Ingreso',
+                            2 => 'Salida',
+                            default => 'Desconocido',
+                        }
+                    ),
+
             Column::make("Serie", "serie")
                     ->sortable(),
             Column::make("Correlativo", "correlative")
                     ->sortable(),
-            Column::make("Document", "supplier.document_number")
+            Column::make("Almacen", "warehouse.name")
                     ->sortable(),
-            Column::make("Razon Social", "supplier.name")
+            Column::make("Motivo", "reason.name")
                     ->sortable(),
             Column::make("Total", "total")
                     ->sortable()
                     ->format(fn($value) => 'Bs/ ' . number_format($value, 2,'.',',')),
             Column::make("Actiones")
                     ->label(function($row) {
-                        return view('admin.purchases.actions', [
-                            'purchase' => $row
+                        return view('admin.movements.actions', [
+                            'movement' => $row
                         ]);
                     })
 
@@ -50,7 +61,10 @@ class PurchaseTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Purchase::query()
-            ->with(['supplier']);
+        return Movement::query()
+            ->with([
+                'warehouse',
+                'reason',
+            ]);
     }
 }

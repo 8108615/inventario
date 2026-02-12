@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('transfers', function (Blueprint $table) {
             $table->id();
 
-            $table->integer('type');
-
             $table->string('serie');
             $table->integer('correlative');
 

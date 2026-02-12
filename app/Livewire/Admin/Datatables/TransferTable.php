@@ -2,15 +2,16 @@
 
 namespace App\Livewire\Admin\Datatables;
 
-use App\Models\Purchase;
+use App\Models\Movement;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\Transfer;
 use Illuminate\Database\Eloquent\Builder;
 
-class PurchaseTable extends DataTableComponent
+class TransferTable extends DataTableComponent
 {
-    protected $model = PurchaseOrder::class;
+    protected $model = Quote::class;
 
     public function configure(): void
     {
@@ -27,21 +28,24 @@ class PurchaseTable extends DataTableComponent
             Column::make("Date", "date")
                     ->sortable()
                     ->format(fn($value) => $value->format('Y-m-d')),
+
+
+
             Column::make("Serie", "serie")
                     ->sortable(),
             Column::make("Correlativo", "correlative")
                     ->sortable(),
-            Column::make("Document", "supplier.document_number")
+            Column::make("Almacen de Origen", "originWarehouse.name")
                     ->sortable(),
-            Column::make("Razon Social", "supplier.name")
+            Column::make("Almacen de Destino", "destinationWarehouse.name")
                     ->sortable(),
             Column::make("Total", "total")
                     ->sortable()
                     ->format(fn($value) => 'Bs/ ' . number_format($value, 2,'.',',')),
             Column::make("Actiones")
                     ->label(function($row) {
-                        return view('admin.purchases.actions', [
-                            'purchase' => $row
+                        return view('admin.transfers.actions', [
+                            'transfer' => $row
                         ]);
                     })
 
@@ -50,7 +54,10 @@ class PurchaseTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Purchase::query()
-            ->with(['supplier']);
+        return Transfer::query()
+            ->with([
+                'originWarehouse',
+                'destinationWarehouse',
+            ]);
     }
 }

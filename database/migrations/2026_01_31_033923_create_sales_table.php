@@ -23,8 +23,9 @@ return new class extends Migration
                 ->useCurrent();
 
             $table->foreignId('quote_id')
+                ->nullable()
                 ->constrained()
-                ->onDelete('cascade');
+                ->onDelete('set null');
 
             $table->foreignId('customer_id')
                 ->constrained()
@@ -40,7 +41,7 @@ return new class extends Migration
             $table->string('observation')
                 ->nullable();
 
-                
+
             $table->timestamps();
         });
     }
