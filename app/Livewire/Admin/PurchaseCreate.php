@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
@@ -158,6 +159,45 @@ class PurchaseCreate extends Component
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
+
+            //Kardex
+            $lastRecord = Inventory::where('product_id', $product['id'])
+                ->where('warehouse_id', $this->warehouse_id)
+                ->latest('id')
+                ->first();
+
+            $lastQuantityBalance = $lastRecord?->quantity_balance ?? 0;
+            $lastTotalBalance = $lastRecord?->total_balance ?? 0;
+
+            $newQuantityBalance = $lastQuantityBalance + $product['quantity'];
+            $newTotalBalance = $lastTotalBalance + ($product['quantity'] * $product['price']);
+            $newCostBalance =  $newTotalBalance / $newQuantityBalance;
+
+            /*Inventory::create([
+                'detail' => "Compra #{$purchase->id}",
+                'quantity_in' => $product['quantity'],
+                'cost_in' => $product['price'],
+                'total_in' => $product['quantity'] * $product['price'],
+                'quantity_balance' => $newQuantityBalance,
+                'cost_balance' => $newCostBalance,
+                'total_balance' => $newTotalBalance,
+                'product_id' => $product['id'],
+                'warehouse_id' => $this->warehouse_id,
+                'inventoryable_id' => $purchase->id,
+                'inventoryable_type' => Purchase::class,
+             ]); */
+
+             $purchase->inventories()->create([
+                'detail' => "Compra #{$purchase->id}",
+                'quantity_in' => $product['quantity'],
+                'cost_in' => $product['price'],
+                'total_in' => $product['quantity'] * $product['price'],
+                'quantity_balance' => $newQuantityBalance,
+                'cost_balance' => $newCostBalance,
+                'total_balance' => $newTotalBalance,
+                'product_id' => $product['id'],
+                'warehouse_id' => $this->warehouse_id,
+             ]);
         }
 
         session()->flash('swal', [

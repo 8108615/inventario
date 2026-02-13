@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Inventory;
 use App\Models\Movement;
 use App\Models\Product;
-use App\Models\Quote;
 use Livewire\Component;
 
 class MovementCreate extends Component
@@ -69,8 +69,11 @@ class MovementCreate extends Component
     {
         $this->validate([
             'product_id' => 'required|exists:products,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
         ],[],[
             'product_id' => 'producto',
+            'warehouse_id' => 'Almacén',
+
         ]);
 
         $existing = collect($this->products)
@@ -88,13 +91,20 @@ class MovementCreate extends Component
         }
 
         $product = Product::find($this->product_id);
+        $lastRecord = Inventory::where('product_id', $product->id)
+            ->where('warehouse_id', $this->warehouse_id)
+            ->latest('id')
+            ->first();
+
+        $costBalance = $lastRecord?->cost_balance ?? 0;
+
 
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => $product->price,
-            'subtotal' => $product->price,
+            'price' => $costBalance,
+            'subtotal' => $costBalance,
         ];
 
         $this->reset('product_id');
@@ -142,6 +152,26 @@ class MovementCreate extends Component
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
+
+            //Kardex
+            $lastRecord = Inventory::where('product_id', $product['id'])
+                ->where('warehouse_id', $this->warehouse_id)
+                ->latest('id')
+                ->first();
+
+            $lastQuantityBalance = $lastRecord?->quantity_balance ?? 0;
+            $lastTotalBalance = $lastRecord?->total_balance ?? 0;
+            $lastCostBalance = $lastRecord?->cost_balance ?? 0;
+
+            if($this->type == 1){
+                $newQuantityBalance = $lastQuantityBalance + $product['quantity'];
+                $newTotalBalance = $lastTotalBalance + ($product['quantity'] * $product['price']);
+                $newCostBalance =  $newTotalBalance / $newQuantityBalance;
+            }elseif($this->type == 2){
+                $newQuantityBalance = $lastQuantityBalance - $product['quantity'];
+                $newTotalBalance = $lastTotalBalance - ($product['quantity'] * $lastCostBalance);
+                $newCostBalance =  $newTotalBalance / max($newQuantityBalance, 1) ;
+            }
         }
 
         session()->flash('swal', [

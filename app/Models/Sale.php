@@ -36,4 +36,10 @@ class Sale extends Model
                     ->withTimestamps();
     }
 
+    //Relación uno a muchos polimórfica
+    public function inventories()
+    {
+        return $this->morphMany(Inventory::class, 'inventoryable');
+    }
+
 }
