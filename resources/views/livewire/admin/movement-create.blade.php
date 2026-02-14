@@ -60,21 +60,21 @@
                     type="date"
                 />
 
-                
 
-                    <x-wire-select
-                        class="lg:col-span-2"
-                        label="Almacenes"
-                        wire:model="warehouse_id"
-                        placeholder="Seleccione un Almacén"
-                        :async-data="[
-                            'api' => route('api.warehouses.index'),
-                            'method' => 'POST',
-                        ]"
-                        option-value="id"
-                        option-label="name"
-                        option-description="description"
-                        :disabled="count($products)"
+
+                <x-wire-select
+                    class="lg:col-span-2"
+                    label="Almacenes"
+                    wire:model="warehouse_id"
+                    placeholder="Seleccione un Almacén"
+                    :async-data="[
+                        'api' => route('api.warehouses.index'),
+                        'method' => 'POST',
+                    ]"
+                    option-value="id"
+                    option-label="name"
+                    option-description="description"
+                    :disabled="count($products)"
                     />
 
 
@@ -133,7 +133,7 @@
                                     Cantidad
                                 </th>
                                 <th class="py-2 px-2">
-                                    Precio
+                                    Precio Costo
                                 </th>
                                 <th class="py-2 px-2">
                                     Subtotal

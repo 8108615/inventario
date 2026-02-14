@@ -98,6 +98,7 @@
                         option-value="id"
                         option-label="name"
                         option-description="description"
+                        :disabled="count($products)"
 
                     />
                 </div>

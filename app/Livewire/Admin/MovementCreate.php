@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Admin;
 
+use App\Facades\Kardex;
 use App\Models\Inventory;
 use App\Models\Movement;
 use App\Models\Product;
+use App\Services\KardexService;
 use Livewire\Component;
 
 class MovementCreate extends Component
@@ -153,25 +155,12 @@ class MovementCreate extends Component
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
 
-            //Kardex
-            $lastRecord = Inventory::where('product_id', $product['id'])
-                ->where('warehouse_id', $this->warehouse_id)
-                ->latest('id')
-                ->first();
-
-            $lastQuantityBalance = $lastRecord?->quantity_balance ?? 0;
-            $lastTotalBalance = $lastRecord?->total_balance ?? 0;
-            $lastCostBalance = $lastRecord?->cost_balance ?? 0;
-
             if($this->type == 1){
-                $newQuantityBalance = $lastQuantityBalance + $product['quantity'];
-                $newTotalBalance = $lastTotalBalance + ($product['quantity'] * $product['price']);
-                $newCostBalance =  $newTotalBalance / $newQuantityBalance;
+                Kardex::registerEntry($movement, $product, $this->warehouse_id, 'Movimiento');
             }elseif($this->type == 2){
-                $newQuantityBalance = $lastQuantityBalance - $product['quantity'];
-                $newTotalBalance = $lastTotalBalance - ($product['quantity'] * $lastCostBalance);
-                $newCostBalance =  $newTotalBalance / max($newQuantityBalance, 1) ;
+                Kardex::registerExit($movement, $product, $this->warehouse_id, 'Movimiento');
             }
+
         }
 
         session()->flash('swal', [

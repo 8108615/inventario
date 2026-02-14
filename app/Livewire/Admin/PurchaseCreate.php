@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Admin;
 
+use App\Facades\Kardex;
 use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
+use App\Services\KardexService;
 use Livewire\Component;
 
 class PurchaseCreate extends Component
@@ -85,8 +87,10 @@ class PurchaseCreate extends Component
     {
         $this->validate([
             'product_id' => 'required|exists:products,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
         ],[],[
             'product_id' => 'producto',
+            'warehouse_id' => 'almacen',
         ]);
 
         $existing = collect($this->products)
@@ -105,12 +109,17 @@ class PurchaseCreate extends Component
 
         $product = Product::find($this->product_id);
 
+        $lastRecord = Kardex::getLastRecord(
+            $product->id,
+            $this->warehouse_id
+        );
+
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => 0,
-            'subtotal' => 0,
+            'price' => $lastRecord['cost'],
+            'subtotal' => $lastRecord['cost'],
         ];
 
         $this->reset('product_id');
@@ -161,43 +170,8 @@ class PurchaseCreate extends Component
             ]);
 
             //Kardex
-            $lastRecord = Inventory::where('product_id', $product['id'])
-                ->where('warehouse_id', $this->warehouse_id)
-                ->latest('id')
-                ->first();
+            Kardex::registerEntry($purchase, $product, $this->warehouse_id, 'Compra');
 
-            $lastQuantityBalance = $lastRecord?->quantity_balance ?? 0;
-            $lastTotalBalance = $lastRecord?->total_balance ?? 0;
-
-            $newQuantityBalance = $lastQuantityBalance + $product['quantity'];
-            $newTotalBalance = $lastTotalBalance + ($product['quantity'] * $product['price']);
-            $newCostBalance =  $newTotalBalance / $newQuantityBalance;
-
-            /*Inventory::create([
-                'detail' => "Compra #{$purchase->id}",
-                'quantity_in' => $product['quantity'],
-                'cost_in' => $product['price'],
-                'total_in' => $product['quantity'] * $product['price'],
-                'quantity_balance' => $newQuantityBalance,
-                'cost_balance' => $newCostBalance,
-                'total_balance' => $newTotalBalance,
-                'product_id' => $product['id'],
-                'warehouse_id' => $this->warehouse_id,
-                'inventoryable_id' => $purchase->id,
-                'inventoryable_type' => Purchase::class,
-             ]); */
-
-             $purchase->inventories()->create([
-                'detail' => "Compra #{$purchase->id}",
-                'quantity_in' => $product['quantity'],
-                'cost_in' => $product['price'],
-                'total_in' => $product['quantity'] * $product['price'],
-                'quantity_balance' => $newQuantityBalance,
-                'cost_balance' => $newCostBalance,
-                'total_balance' => $newTotalBalance,
-                'product_id' => $product['id'],
-                'warehouse_id' => $this->warehouse_id,
-             ]);
         }
 
         session()->flash('swal', [

@@ -39,4 +39,10 @@ class Movement extends Model
                     ->withPivot('quantity', 'price', 'subtotal')
                     ->withTimestamps();
     }
+
+    //Relacion uno a muchos polimórfica
+    public function inventories()
+    {
+        return $this->morphMany(Inventory::class, 'inventoryable');
+    }  
 }

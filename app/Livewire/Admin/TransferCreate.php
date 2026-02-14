@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Movement;
+use App\Facades\Kardex;
 use App\Models\Product;
 use App\Models\Transfer;
 use Livewire\Component;
@@ -72,8 +72,10 @@ class TransferCreate extends Component
     {
         $this->validate([
             'product_id' => 'required|exists:products,id',
+            'origin_warehouse_id' => 'required|exists:warehouses,id',
         ],[],[
             'product_id' => 'producto',
+            'origin_warehouse_id' => 'almacén de origen',
         ]);
 
         $existing = collect($this->products)
@@ -92,12 +94,17 @@ class TransferCreate extends Component
 
         $product = Product::find($this->product_id);
 
+        $lastRecord = Kardex::getLastRecord(
+            $product->id,
+            $this->origin_warehouse_id
+        );
+
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
             'quantity' => 1,
-            'price' => $product->price,
-            'subtotal' => $product->price,
+            'price' => $lastRecord['cost'],
+            'subtotal' => $lastRecord['cost'],
         ];
 
         $this->reset('product_id');
@@ -143,6 +150,20 @@ class TransferCreate extends Component
                 'price' => $product['price'],
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
+
+            Kardex::registerExit(
+                $transfer,
+                $product,
+                $this->origin_warehouse_id,
+                "Transferencia"
+            );
+
+            Kardex::registerEntry(
+                $transfer,
+                $product,
+                $this->destination_warehouse_id,
+                "Transferencia"
+            );
         }
 
         session()->flash('swal', [

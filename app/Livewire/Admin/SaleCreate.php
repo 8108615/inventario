@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Admin;
 
+use App\Facades\Kardex;
 use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\Sale;
+use App\Services\KardexService;
 use Livewire\Component;
 
 class SaleCreate extends Component
@@ -165,33 +167,9 @@ class SaleCreate extends Component
                 'subtotal' => $product['quantity'] * $product['price'],
             ]);
 
-            //Kardex
-            $lastRecord = Inventory::where('product_id', $product['id'])
-                ->where('warehouse_id', $this->warehouse_id)
-                ->latest('id')
-                ->first();
-
-            $lastQuantityBalance = $lastRecord?->quantity_balance ?? 0;
-            $lastTotalBalance = $lastRecord?->total_balance ?? 0;
-            $lastCostBalance = $lastRecord?->cost_balance ?? 0;
-
-            $newQuantityBalance = $lastQuantityBalance - $product['quantity'];
-            $newTotalBalance = $lastTotalBalance - ($product['quantity'] * $lastCostBalance);
-            $newCostBalance = $newQuantityBalance / ($newQuantityBalance ?: 1);
-
-            $sale->inventories()->create([
-                'detail' => "Venta",
-                'quantity_out' => $product['quantity'],
-                'cost_out' => $lastCostBalance,
-                'total_out' => $product['quantity'] * $lastCostBalance,
-                'quantity_balance' => $newQuantityBalance,
-                'cost_balance' => $newCostBalance,
-                'total_balance' => $newTotalBalance,
-                'product_id' => $product['id'],
-                'warehouse_id' => $this->warehouse_id,
-            ]);
 
 
+            Kardex::registerExit($sale, $product, $this->warehouse_id, 'Venta');
         }
 
         session()->flash('swal', [
