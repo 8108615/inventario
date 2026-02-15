@@ -19,10 +19,14 @@ Route::get('/', function () {
 })->name('dashboard');
 
 //Inventario
-
 Route::resource('categories', CategoryController::class)->except(['show']);
+
+
 Route::resource('products', ProductController::class)->except(['show']);
 Route::post('products/{product}/dropzone', [ProductController::class, 'dropzone'])->name('products.dropzone');
+
+Route::get('products/{product}/kadex', [ProductController::class, 'kardex'])->name('products.kardex');
+
 Route::resource('warehouses', WarehouseController::class)->except(['show']);
 
 //Compras
