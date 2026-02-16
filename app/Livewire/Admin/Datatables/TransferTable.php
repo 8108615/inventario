@@ -8,6 +8,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Quote;
 use App\Models\Transfer;
 use Illuminate\Database\Eloquent\Builder;
+use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
 
 class TransferTable extends DataTableComponent
 {
@@ -18,6 +19,22 @@ class TransferTable extends DataTableComponent
         $this->setPrimaryKey('id');
         $this->setDefaultSort('id', 'desc');
         /*$this->setAdditionalSelects(['purchase_orders.id']);*/
+    }
+
+    public function filters(): array
+    {
+        return [
+            DateRangeFilter::make('Fecha')
+                ->config([
+                    'placeholder' => 'Selecciona un rango de fechas',
+                ])
+                ->filter(function($query, array $datesRange) {
+                    $query->whereBetween('date', [
+                        $datesRange['minDate'],
+                        $datesRange['maxDate']
+                    ]);
+                })
+        ];
     }
 
     public function columns(): array

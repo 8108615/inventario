@@ -6,7 +6,10 @@ use App\Models\Purchase;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\PurchaseOrder;
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Builder;
+use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\MultiSelectFilter;
 
 class PurchaseTable extends DataTableComponent
 {
@@ -17,6 +20,35 @@ class PurchaseTable extends DataTableComponent
         $this->setPrimaryKey('id');
         $this->setDefaultSort('id', 'desc');
         /*$this->setAdditionalSelects(['purchase_orders.id']);*/
+    }
+
+    public function filters(): array
+    {
+        return [
+            DateRangeFilter::make('Fecha')
+                ->config([
+                    'placeholder' => 'Selecciona un rango de fechas',
+                ])
+                ->filter(function($query, array $datesRange) {
+                    $query->whereBetween('date', [
+                        $datesRange['minDate'],
+                        $datesRange['maxDate']
+                    ]);
+                }),
+
+                 MultiSelectFilter::make('Proveedor')
+                    ->options(
+                        Supplier::query()
+                            ->orderBy('name')
+                            ->get()
+                            ->keyBy('id')
+                            ->map(fn($tag) => $tag->name)
+                            ->toArray()
+                    )
+                    ->filter(function($query, array $selected) {
+                        $query->whereIn('supplier_id', $selected);
+                    }),
+        ];
     }
 
     public function columns(): array
@@ -34,6 +66,7 @@ class PurchaseTable extends DataTableComponent
             Column::make("Document", "supplier.document_number")
                     ->sortable(),
             Column::make("Razon Social", "supplier.name")
+                    ->searchable()
                     ->sortable(),
             Column::make("Total", "total")
                     ->sortable()
