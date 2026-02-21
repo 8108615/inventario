@@ -133,4 +133,9 @@ class ProductController extends Controller
     {
         return view('admin.products.kardex', compact('product'));
     }
+
+    public function import()
+    {
+        return view('admin.products.import');
+    }
 }

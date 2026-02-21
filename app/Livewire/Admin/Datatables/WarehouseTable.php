@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Datatables;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Warehouse;
+use Maatwebsite\Excel\Facades\Excel;
 
 class WarehouseTable extends DataTableComponent
 {
@@ -30,5 +31,23 @@ class WarehouseTable extends DataTableComponent
                     return view('admin.warehouses.actions', ['warehouse' => $row]);
                 })
         ];
+    }
+
+    public function bulkActions(): array
+    {
+        return [
+            'exportSelected' => 'Exportar',
+        ];
+    }
+
+    public function exportSelected()
+    {
+        $selected = $this->getSelected();
+
+        $warehouses = count($selected)
+            ? Warehouse::whereIn('id', $selected)->get()
+            : Warehouse::all();
+
+        return Excel::download(new \App\Exports\WarehousesExport($warehouses), 'warehouses.xlsx');
     }
 }

@@ -100,4 +100,9 @@ class WarehouseController extends Controller
 
         return redirect()->route('admin.warehouses.index');
     }
+
+    public function import()
+    {
+        return view('admin.warehouses.import');
+    }
 }

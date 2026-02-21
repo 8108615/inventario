@@ -8,11 +8,15 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ImageColumn;
 
 class ProductTable extends DataTableComponent
 {
-    /*protected $model = Product::class; */
+    public function builder(): Builder
+    {
+        return Product::query()->with(['category', 'images']);
+    }
 
     public function configure(): void
     {
@@ -65,10 +69,25 @@ class ProductTable extends DataTableComponent
         ];
     }
 
-    public function builder(): Builder
+    public function bulkActions(): array
     {
-        return Product::query()->with(['category', 'images']);
+        return [
+            'exportSelected' => 'Exportar',
+        ];
     }
+
+    public function exportSelected()
+    {
+        $selected = $this->getSelected();
+
+        $products = count($selected)
+            ? Product::whereIn('id', $selected)->get()
+            : Product::all();
+
+        return Excel::download(new \App\Exports\ProductsExport($products), 'products.xlsx');
+    }
+
+
 
     //Propiedades
 

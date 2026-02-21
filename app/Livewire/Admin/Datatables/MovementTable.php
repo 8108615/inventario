@@ -7,16 +7,30 @@ use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Quote;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
 
 class MovementTable extends DataTableComponent
 {
-    protected $model = Quote::class;
+    public function builder(): Builder
+    {
+        return Movement::query()
+            ->with([
+                'warehouse',
+                'reason',
+            ]);
+    }
 
     public function configure(): void
     {
         $this->setPrimaryKey('id');
         $this->setDefaultSort('id', 'desc');
+        $this->setConfigurableAreas([
+            'after-wrapper' => [
+                'admin.pdf.modal',
+            ],
+        ]);
         /*$this->setAdditionalSelects(['purchase_orders.id']);*/
     }
 
@@ -76,12 +90,64 @@ class MovementTable extends DataTableComponent
         ];
     }
 
-    public function builder(): Builder
+    public function bulkActions(): array
     {
-        return Movement::query()
-            ->with([
-                'warehouse',
-                'reason',
-            ]);
+        return [
+            'exportSelected' => 'Exportar',
+        ];
+    }
+
+    public function exportSelected()
+    {
+        $selected = $this->getSelected();
+
+        $movements = count($selected)
+            ? Movement::whereIn('id', $selected)
+            ->with(['warehouse', 'reason'])
+            ->get()
+            : Movement::with(['warehouse', 'reason'])->get();
+
+        return Excel::download(new \App\Exports\MovementsExport($movements), 'movements.xlsx');
+    }
+
+
+
+    //Propiedades
+    public $form = [
+        'open' => false,
+        'document' => '',
+        'client' => '',
+        'email' => '',
+        'model' => null,
+        'view_pdf_patch' => 'admin.movements.pdf',
+    ];
+
+     //metodo
+    public function openModal(Movement $movement)
+    {
+        $this->form['open'] = true;
+        $this->form['document'] = 'Movimiento ' . $movement->serie . '-' . $movement->correlative;
+        $this->form['client'] = $movement->warehouse->name;
+        $this->form['email'] = '';
+        $this->form['model'] = $movement;
+    }
+
+    public function sendEmail()
+    {
+        $this->validate([
+            'form.email' => 'required|email',
+        ]);
+
+        //llamar un mailable
+        Mail::to($this->form['email'])
+            ->send(new \App\Mail\PdfSend($this->form));
+
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Correo Enviado',
+            'text' => 'El correo ha sido enviado exitosamente',
+        ]);
+
+        $this->reset('form');
     }
 }

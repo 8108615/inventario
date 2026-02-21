@@ -6,16 +6,27 @@ use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Quote;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
 
 class QuoteTable extends DataTableComponent
 {
-    protected $model = Quote::class;
+    public function builder(): Builder
+    {
+        return Quote::query()
+            ->with(['customer']);
+    }
 
     public function configure(): void
     {
         $this->setPrimaryKey('id');
         $this->setDefaultSort('id', 'desc');
+        $this->setConfigurableAreas([
+            'after-wrapper' => [
+                'admin.pdf.modal',
+            ],
+        ]);
         /*$this->setAdditionalSelects(['purchase_orders.id']);*/
     }
 
@@ -64,9 +75,64 @@ class QuoteTable extends DataTableComponent
         ];
     }
 
-    public function builder(): Builder
+    public function bulkActions(): array
     {
-        return Quote::query()
-            ->with(['customer']);
+        return [
+            'exportSelected' => 'Exportar',
+        ];
+    }
+
+    public function exportSelected()
+    {
+        $selected = $this->getSelected();
+
+        $quotes = count($selected)
+            ? Quote::whereIn('id', $selected)
+            ->with(['customer.identity'])
+            ->get()
+            : Quote::with(['customer.identity'])->get();
+
+        return Excel::download(new \App\Exports\QuotesExport($quotes), 'quotes.xlsx');
+    }
+
+
+
+    //Propiedades
+    public $form = [
+        'open' => false,
+        'document' => '',
+        'client' => '',
+        'email' => '',
+        'model' => null,
+        'view_pdf_patch' => 'admin.quotes.pdf',
+    ];
+
+     //metodo
+    public function openModal(Quote $quote)
+    {
+        $this->form['open'] = true;
+        $this->form['document'] = 'Cotización ' . $quote->serie . '-' . $quote->correlative;
+        $this->form['client'] = $quote->customer->document_number . ' -' . $quote->customer->name;
+        $this->form['email'] = $quote->customer->email;
+        $this->form['model'] = $quote;
+    }
+
+    public function sendEmail()
+    {
+        $this->validate([
+            'form.email' => 'required|email',
+        ]);
+
+        //llamar un mailable
+        Mail::to($this->form['email'])
+            ->send(new \App\Mail\PdfSend($this->form));
+
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Correo Enviado',
+            'text' => 'El correo ha sido enviado exitosamente',
+        ]);
+
+        $this->reset('form');
     }
 }

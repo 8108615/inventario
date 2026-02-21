@@ -1,9 +1,9 @@
 <div class="flex items-center space-x-4">
-    <button>
-        <i class="fa-solid fa-envelope text-xl text-blue-500"></i>
-    </button>
+    <x-wire-button green wire:click="openModal({{ $quote->id }})">
+        <i class="fa-solid fa-envelope"></i>
+    </x-wire-button>
 
-    <button>
-        <i class="fa-solid fa-file-pdf text-xl text-blue-500"></i>
-    </button>
+    <x-wire-button blue href="{{ route('admin.quotes.pdf', $quote) }}" >
+        <i class="fa-solid fa-file-pdf"></i>
+    </x-wire-button>
 </div>

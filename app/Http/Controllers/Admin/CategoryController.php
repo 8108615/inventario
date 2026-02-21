@@ -100,4 +100,9 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index');
     }
+
+    public function import()
+    {
+        return view('admin.categories.import');
+    }
 }

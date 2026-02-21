@@ -3,11 +3,11 @@
 namespace App\Livewire\Admin;
 
 use App\Facades\Kardex;
-use App\Models\Inventory;
+
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
-use App\Services\KardexService;
+
 use Livewire\Component;
 
 class PurchaseCreate extends Component

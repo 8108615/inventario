@@ -79,6 +79,8 @@ class PurchaseOrderCreate extends Component
 
         $product = Product::find($this->product_id);
 
+        
+
         $this->products[] = [
             'id' => $product->id,
             'name' => $product->name,
@@ -104,7 +106,7 @@ class PurchaseOrderCreate extends Component
             'products.*.price' => 'required|numeric|min:0',
         ],[],[
             'voucher_type' => 'tipo de comprobante',
-            'supplier_id' => 'proveedor',            
+            'supplier_id' => 'proveedor',
             'observation' => 'observación',
             'products.*.id' => 'producto',
             'products.*.quantity' => 'cantidad',

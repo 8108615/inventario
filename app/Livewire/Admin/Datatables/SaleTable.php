@@ -8,16 +8,28 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\PurchaseOrder;
 use App\Models\Sale;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 use Rappasoft\LaravelLivewireTables\Views\Filters\DateRangeFilter;
 
 class SaleTable extends DataTableComponent
 {
-    protected $model = PurchaseOrder::class;
+    public function builder(): Builder
+    {
+        return Sale::query()
+            ->with(['customer']);
+    }
 
     public function configure(): void
     {
         $this->setPrimaryKey('id');
         $this->setDefaultSort('id', 'desc');
+
+        $this->setConfigurableAreas([
+            'after-wrapper' => [
+                'admin.pdf.modal',
+            ],
+        ]);
         /*$this->setAdditionalSelects(['purchase_orders.id']);*/
     }
 
@@ -66,9 +78,64 @@ class SaleTable extends DataTableComponent
         ];
     }
 
-    public function builder(): Builder
+    public function bulkActions(): array
     {
-        return Sale::query()
-            ->with(['customer']);
+        return [
+            'exportSelected' => 'Exportar',
+        ];
+    }
+
+    public function exportSelected()
+    {
+        $selected = $this->getSelected();
+
+        $sales = count($selected)
+            ? Sale::whereIn('id', $selected)
+            ->with(['customer.identity'])
+            ->get()
+            : Sale::with(['customer.identity'])->get();
+
+        return Excel::download(new \App\Exports\SalesExport($sales), 'sales.xlsx');
+    }
+
+
+
+    //Propiedades
+    public $form = [
+        'open' => false,
+        'document' => '',
+        'client' => '',
+        'email' => '',
+        'model' => null,
+        'view_pdf_patch' => 'admin.sales.pdf',
+    ];
+
+     //metodo
+    public function openModal(Sale $sale)
+    {
+        $this->form['open'] = true;
+        $this->form['document'] = 'Venta ' . $sale->serie . '-' . $sale->correlative;
+        $this->form['client'] = $sale->customer->document_number . ' -' . $sale->customer->name;
+        $this->form['email'] = $sale->customer->email;
+        $this->form['model'] = $sale;
+    }
+
+    public function sendEmail()
+    {
+        $this->validate([
+            'form.email' => 'required|email',
+        ]);
+
+        //llamar un mailable
+        Mail::to($this->form['email'])
+            ->send(new \App\Mail\PdfSend($this->form));
+
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Correo Enviado',
+            'text' => 'El correo ha sido enviado exitosamente',
+        ]);
+
+        $this->reset('form');
     }
 }
